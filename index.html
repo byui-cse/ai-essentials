@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Was This Helpful?</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-6 rounded-lg shadow-md text-center">
+    <p class="text-lg font-semibold mb-4">Was this helpful?</p>
+    <div class="flex justify-center space-x-4">
+      <button id="thumbsUp" class="text-3xl hover:text-green-500 focus:outline-none" title="Yes">&#128077;</button>
+      <button id="thumbsDown" class="text-3xl hover:text-red-500 focus:outline-none" title="No">&#128078;</button>
+    </div>
+    <p id="feedbackMessage" class="mt-4 text-sm text-gray-600 hidden">Thank you for your feedback!</p>
+  </div>
+
+  <script>
+    const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeoZASYOTUKabodEvZluy23yBsxXREFF0h_x2EPZUdO__FItg/formResponse';
+    const ENTRY_ID = 'entry.1513911623';
+    const ASSIGNMENT_ENTRY_ID = 'entry.900142231';
+
+    const thumbsUp = document.getElementById('thumbsUp');
+    const thumbsDown = document.getElementById('thumbsDown');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+
+    // Pull from ?assignment=
+    const assignmentName = new URLSearchParams(window.location.search).get('assignment');
+
+    function submitFeedback(response) {
+      const formData = new FormData();
+      formData.append(ENTRY_ID, response);
+      formData.append(ASSIGNMENT_ENTRY_ID, assignmentName);
+
+      fetch(FORM_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Required for Google Forms submission
+        body: formData
+      })
+        .then(() => {
+          feedbackMessage.classList.remove('hidden');
+          thumbsUp.classList.add('opacity-50', 'cursor-not-allowed');
+          thumbsDown.classList.add('opacity-50', 'cursor-not-allowed');
+          thumbsUp.disabled = true;
+          thumbsDown.disabled = true;
+        })
+        .catch(error => {
+          console.error('Error submitting feedback:', error);
+          feedbackMessage.textContent = 'Error submitting feedback. Please try again.';
+          feedbackMessage.classList.remove('hidden');
+        });
+    }
+
+    thumbsUp.addEventListener('click', () => submitFeedback('Yes'));
+    thumbsDown.addEventListener('click', () => submitFeedback('No'));
+  </script>
+</body>
+
+</html>
